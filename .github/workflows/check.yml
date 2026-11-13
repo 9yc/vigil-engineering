@@ -16,4 +16,4 @@ jobs:
         with:
           persist-credentials: false
       - name: Build and test with synthetic inputs
-        run: make test ARTIFACT_DIR="$RUNNER_TEMP/vigil-engineering-check"
+        run: make test ARTIFACT_DIR="$RUNNER_TEMP/public-code-check"
