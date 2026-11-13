@@ -1,0 +1,57 @@
+{
+  "data_kind": "synthetic",
+  "cases": [
+    {
+      "name": "many_small_objects",
+      "budget_units": 24,
+      "slot_size": 6,
+      "block_size": 2,
+      "events": [
+        {"op": "allocate", "id": "a", "units": 3},
+        {"op": "allocate", "id": "b", "units": 3},
+        {"op": "allocate", "id": "c", "units": 3},
+        {"op": "allocate", "id": "d", "units": 3},
+        {"op": "allocate", "id": "e", "units": 3},
+        {"op": "allocate", "id": "f", "units": 3}
+      ]
+    },
+    {
+      "name": "objects_larger_than_one_slot",
+      "budget_units": 24,
+      "slot_size": 6,
+      "block_size": 2,
+      "events": [
+        {"op": "allocate", "id": "a", "units": 9},
+        {"op": "allocate", "id": "b", "units": 9}
+      ]
+    },
+    {
+      "name": "separated_free_ranges",
+      "budget_units": 24,
+      "slot_size": 8,
+      "block_size": 4,
+      "events": [
+        {"op": "allocate", "id": "a", "units": 8},
+        {"op": "allocate", "id": "b", "units": 8},
+        {"op": "allocate", "id": "c", "units": 8},
+        {"op": "free", "id": "a"},
+        {"op": "free", "id": "c"},
+        {"op": "allocate", "id": "d", "units": 12},
+        {"op": "free", "id": "b"},
+        {"op": "free", "id": "d"}
+      ]
+    },
+    {
+      "name": "rounding_negative_control",
+      "budget_units": 20,
+      "slot_size": 5,
+      "block_size": 4,
+      "events": [
+        {"op": "allocate", "id": "a", "units": 5},
+        {"op": "allocate", "id": "b", "units": 5},
+        {"op": "allocate", "id": "c", "units": 5},
+        {"op": "allocate", "id": "d", "units": 5}
+      ]
+    }
+  ]
+}
