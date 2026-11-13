@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-11-13",
+  "scope": "Complete local project tree, subject to the exclusions below; not the public repository alone.",
+  "evidence_type": "Maintainer-provided static inventory, not an independent audit.",
+  "totals": {
+    "source_files": 581,
+    "nonblank_source_lines": 92110,
+    "test_files": 62,
+    "documentation_files": 106
+  },
+  "source_by_extension": {
+    ".c": {
+      "files": 1,
+      "nonblank_lines": 329
+    },
+    ".cpp": {
+      "files": 55,
+      "nonblank_lines": 15405
+    },
+    ".h": {
+      "files": 8,
+      "nonblank_lines": 1912
+    },
+    ".hpp": {
+      "files": 2,
+      "nonblank_lines": 112
+    },
+    ".js": {
+      "files": 1,
+      "nonblank_lines": 18
+    },
+    ".py": {
+      "files": 472,
+      "nonblank_lines": 72808
+    },
+    ".sh": {
+      "files": 42,
+      "nonblank_lines": 1526
+    }
+  },
+  "method": {
+    "source_extensions": [
+      ".bash",
+      ".c",
+      ".cc",
+      ".cpp",
+      ".cu",
+      ".cuh",
+      ".h",
+      ".hpp",
+      ".js",
+      ".jsx",
+      ".py",
+      ".rs",
+      ".sh",
+      ".ts",
+      ".tsx"
+    ],
+    "documentation_extensions": [
+      ".md",
+      ".tex"
+    ],
+    "excluded_directory_names": [
+      ".agents",
+      ".aws",
+      ".claude",
+      ".codex",
+      ".git",
+      ".pytest_cache",
+      ".venv",
+      "__pycache__",
+      "build",
+      "datasets",
+      "dist",
+      "node_modules",
+      "third_party",
+      "vendor",
+      "venv"
+    ],
+    "symlinks_followed": false,
+    "line_count": "Physical non-empty lines including comments and tests.",
+    "test_files": "Source files named test_*, *_test.py, or under a tests directory.",
+    "generated_or_copied_code_deduplicated": false,
+    "author_attribution_performed": false,
+    "original_tests_executed_for_inventory": false,
+    "internal_filenames_or_file_contents_exported": false
+  }
+}
