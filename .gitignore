@@ -20,8 +20,3 @@
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
-!/reports/
-/reports/*
-!/reports/work_record.md
-!/reports/project_inventory.json
-!/reports/validation.md
