@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import os
 from pathlib import Path
 import signal
@@ -10,6 +11,8 @@ import time
 import unittest
 
 from tools.summarize_csv import summarize
+from tools.integrate_power import integrate
+from tools.validate_measurements import validate
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +48,62 @@ class SummaryTests(unittest.TestCase):
                 summarize([{"x": "1", "case": "a", "count": "a"}], "x", groups)
 
 
+class MeasurementTests(unittest.TestCase):
+    def test_complete_measurements(self):
+        rows = [{"iteration": str(i), "duration_ms": str(v)}
+                for i, v in enumerate((3, 5, 4))]
+        self.assertEqual(validate(rows, 3), {
+            "validated_rows": 3, "first_iteration": 0, "last_iteration": 2,
+            "minimum": 3, "median": 4, "maximum": 5,
+        })
+
+    def test_incomplete_duplicate_and_out_of_order(self):
+        for indices in ([], [0], [0, 0, 2], [0, 2, 1], [0, 1, 3], [0, 1, 2, 3]):
+            rows = [{"iteration": str(i), "duration_ms": "1"} for i in indices]
+            with self.subTest(indices=indices), self.assertRaises(ValueError):
+                validate(rows, 3)
+        with self.assertRaises(ValueError):
+            validate([], 0)
+
+    def test_invalid_durations(self):
+        for value in ("nan", "inf", "0", "-1", "text", "", None):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate([{"iteration": "0", "duration_ms": value}], 1)
+
+
+class PowerTests(unittest.TestCase):
+    def test_constant_and_irregular_windows(self):
+        self.assertEqual(integrate([(0, 3), (2, 3)])["energy_j"], 6)
+        self.assertEqual(integrate([(0, 2), (2, 4), (5, 2)])["energy_j"], 15)
+        self.assertEqual(integrate([(0, 0), (1, 0)])["mean_power_w"], 0)
+
+    def test_clipped_window_and_boundaries(self):
+        samples = [(0, 2), (1, 4), (2, 2)]
+        full = integrate(samples)
+        window = integrate(samples, 0.25, 1.25, max_gap=1)
+        self.assertEqual(full["energy_j"], 6)
+        self.assertEqual(window["energy_j"], 3.5)
+        self.assertEqual(window["mean_power_w"], 3.5)
+        self.assertEqual(integrate(samples, 0.5, 1.5)["energy_j"], 4)
+
+    def test_invalid_series(self):
+        for samples in ([], [(0, 1)], [(0, 1), (0, 2)], [(1, 1), (0, 2)],
+                        [(0, -1), (1, 2)], [(0, 1), (float("inf"), 2)],
+                        [(0, 1), (1, float("nan"))],
+                        [(-1e308, 1), (1e308, 1)]):
+            with self.subTest(samples=samples), self.assertRaises(ValueError):
+                integrate(samples)
+
+    def test_invalid_windows_and_gaps(self):
+        samples = [(0, 2), (1, 4), (2, 2)]
+        for start, end in ((-1, 1), (0, 3), (1, 1), (2, 1), (0, float("nan"))):
+            with self.subTest(start=start, end=end), self.assertRaises(ValueError):
+                integrate(samples, start, end)
+        for gap in (0, -1, 0.5, float("nan")):
+            with self.subTest(gap=gap), self.assertRaises(ValueError):
+                integrate(samples, max_gap=gap)
+
+
 class ToolIntegrationTests(unittest.TestCase):
     def setUp(self):
         temporary_root = Path(os.environ["TMPDIR"])
@@ -70,6 +129,12 @@ class ToolIntegrationTests(unittest.TestCase):
         return subprocess.run(
             [sys.executable, "-B", str(ROOT / "tools/summarize_csv.py"),
              str(source), *args],
+            capture_output=True, text=True, timeout=10,
+        )
+
+    def tool_cli(self, name, *args):
+        return subprocess.run(
+            [sys.executable, "-B", str(ROOT / "tools" / name), *map(str, args)],
             capture_output=True, text=True, timeout=10,
         )
 
@@ -166,6 +231,36 @@ class ToolIntegrationTests(unittest.TestCase):
                                   "--output", str(self.output))
         self.assertNotEqual(second.returncode, 0)
         self.assertEqual(self.output.read_text(), previous)
+
+    def test_measurement_cli(self):
+        source = ROOT / "examples/synthetic_durations.csv"
+        result = self.tool_cli("validate_measurements.py", source, "--expected", "3")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["validated_rows"], 3)
+        partial = self.tool_cli("validate_measurements.py", source, "--expected", "4")
+        self.assertNotEqual(partial.returncode, 0)
+        self.assertEqual(partial.stdout, "")
+
+    def test_power_cli(self):
+        result = self.tool_cli(
+            "integrate_power.py", ROOT / "examples/synthetic_power.csv",
+            "--start", "0.25", "--end", "1.25", "--max-gap", "1",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["energy_j"], 3.5)
+
+    def test_new_tools_reject_malformed_csv(self):
+        source = self.directory / "malformed.csv"
+        for content in ("", "time_s,power_w\n0,2\n1,\n",
+                        "time_s,power_w\n0,2,extra\n1,2\n",
+                        "time_s,power_w\n0,nan\n1,2\n"):
+            source.write_text(content)
+            with self.subTest(content=content):
+                self.assertNotEqual(
+                    self.tool_cli("integrate_power.py", source).returncode, 0)
+                self.assertNotEqual(
+                    self.tool_cli("validate_measurements.py", source,
+                                  "--expected", "2").returncode, 0)
 
 
 if __name__ == "__main__":
