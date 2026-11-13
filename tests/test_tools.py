@@ -13,6 +13,7 @@ import unittest
 from tools.summarize_csv import summarize
 from tools.integrate_power import integrate
 from tools.validate_measurements import validate
+from runtime_support import FrameReader, FrameWriter, LineProcess, parse_output, validate_calls
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -102,6 +103,110 @@ class PowerTests(unittest.TestCase):
         for gap in (0, -1, 0.5, float("nan")):
             with self.subTest(gap=gap), self.assertRaises(ValueError):
                 integrate(samples, max_gap=gap)
+
+
+class BinaryCodecTests(unittest.TestCase):
+    def test_fields_and_utf8_roundtrip(self):
+        writer = FrameWriter(b"EXAMPLE")
+        writer.put("Ii", 7, -2)
+        writer.text("你好")
+        writer.text("")
+        reader = FrameReader(writer.done(), b"EXAMPLE")
+        self.assertEqual(reader.get("Ii"), (7, -2))
+        self.assertEqual(reader.text(), "你好")
+        self.assertEqual(reader.text(), "")
+        reader.finish()
+
+    def test_corruption_and_magic_are_rejected(self):
+        writer = FrameWriter(b"EXAMPLE")
+        writer.put("I", 7)
+        data = writer.done()
+        broken = bytearray(data)
+        broken[7] ^= 1
+        for value, magic in ((data, b"OTHER"), (data[:-1], b"EXAMPLE"),
+                             (bytes(broken), b"EXAMPLE"), (b"", b"EXAMPLE")):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                FrameReader(value, magic)
+
+    def test_truncated_fields_and_strings(self):
+        short_field = FrameWriter(b"EXAMPLE")
+        short_field.put("H", 1)
+        with self.assertRaises(ValueError):
+            FrameReader(short_field.done(), b"EXAMPLE").get("I")
+        short_string = FrameWriter(b"EXAMPLE")
+        short_string.put("H", 8)
+        short_string.put("B", 65)
+        with self.assertRaises(ValueError):
+            FrameReader(short_string.done(), b"EXAMPLE").text()
+
+    def test_invalid_utf8_and_oversized_text(self):
+        writer = FrameWriter(b"EXAMPLE")
+        writer.put("HB", 1, 255)
+        with self.assertRaises(UnicodeDecodeError):
+            FrameReader(writer.done(), b"EXAMPLE").text()
+        with self.assertRaises(ValueError):
+            FrameWriter(b"EXAMPLE").text("字" * 22000)
+
+    def test_unconsumed_fields_are_rejected(self):
+        writer = FrameWriter(b"EXAMPLE")
+        writer.put("II", 1, 2)
+        reader = FrameReader(writer.done(), b"EXAMPLE")
+        self.assertEqual(reader.get("I"), 1)
+        with self.assertRaises(ValueError):
+            reader.finish()
+
+
+class JsonOutputTests(unittest.TestCase):
+    def setUp(self):
+        self.specs = {"echo": {
+            "text": {"type": "string", "required": True},
+            "count": {"type": "int"},
+            "style": {"type": "string-enum", "enum": ["brief", "full"]},
+        }}
+
+    def test_plain_and_embedded_json(self):
+        payload = '[{"name":"echo","parameters":{"text":"hello"}}]'
+        value, error, fallback = parse_output(payload)
+        self.assertIsNone(error)
+        self.assertFalse(fallback)
+        self.assertEqual(validate_calls(value, self.specs), [])
+        parsed, error, fallback = parse_output("```json\n" + payload + "\n```")
+        self.assertEqual(parsed, value)
+        self.assertIsNone(error)
+        self.assertTrue(fallback)
+
+    def test_malformed_and_nonstandard_json(self):
+        for raw in ("not JSON", "[", "[NaN]", "[Infinity]"):
+            with self.subTest(raw=raw):
+                value, error, fallback = parse_output(raw)
+                self.assertIsNone(value)
+                self.assertIsNotNone(error)
+                self.assertFalse(fallback)
+
+    def test_required_unknown_enum_and_boolean_types(self):
+        for params in ({}, {"text": "ok", "extra": 1},
+                       {"text": "ok", "count": True},
+                       {"text": "ok", "style": "unknown"}):
+            with self.subTest(params=params):
+                self.assertTrue(validate_calls(
+                    [{"name": "echo", "parameters": params}], self.specs))
+        for value in ({}, [1], [{"name": "missing", "parameters": {}}],
+                      [{"name": "echo", "parameters": []}]):
+            with self.subTest(value=value):
+                self.assertTrue(validate_calls(value, self.specs))
+
+    def test_additional_supported_types(self):
+        specs = {"example": {
+            "flag": {"type": "bool"}, "value": {"type": "float"},
+            "options": {"type": "dictionary"}, "items": {"type": "list"},
+        }}
+        params = {"flag": False, "value": 1.5, "options": {}, "items": []}
+        self.assertEqual(validate_calls([{"name": "example", "parameters": params}], specs), [])
+        for invalid in (True, float("inf"), float("nan")):
+            params["value"] = invalid
+            with self.subTest(invalid=invalid):
+                self.assertTrue(validate_calls(
+                    [{"name": "example", "parameters": params}], specs))
 
 
 class ToolIntegrationTests(unittest.TestCase):
@@ -261,6 +366,64 @@ class ToolIntegrationTests(unittest.TestCase):
                 self.assertNotEqual(
                     self.tool_cli("validate_measurements.py", source,
                                   "--expected", "2").returncode, 0)
+
+    def test_process_request_and_diagnostics(self):
+        child = (
+            "import sys\n"
+            "print('example diagnostic', file=sys.stderr, flush=True)\n"
+            "print('READY', flush=True)\n"
+            "for line in sys.stdin:\n"
+            "    print('NOTICE observed input', flush=True)\n"
+            "    print('OK ' + line.strip(), flush=True)\n"
+        )
+        transcript = self.directory / "transcript.log"
+        stderr = self.directory / "stderr.log"
+        with LineProcess([sys.executable, "-u", "-c", child],
+                         transcript=transcript, stderr_path=stderr) as link:
+            self.assertEqual(link.wait(lambda value: value == "READY", 5), "READY")
+            self.assertEqual(link.request("hello", ("OK",), timeout=5), "OK hello")
+            self.assertIn("NOTICE observed input", link.stray)
+            with self.assertRaises(ValueError):
+                link.send("two\nlines")
+        self.assertEqual(link.proc.returncode, 0)
+        self.assertIn("> hello", transcript.read_text())
+        self.assertIn("< OK hello", transcript.read_text())
+        self.assertIn("example diagnostic", stderr.read_text())
+
+    def test_process_timeout_and_forced_close(self):
+        child = "import time; print('READY', flush=True); time.sleep(60)"
+        link = LineProcess([sys.executable, "-u", "-c", child])
+        try:
+            self.assertEqual(link.wait(lambda value: value == "READY", 5), "READY")
+            self.assertIsNone(link.request("PING", ("PONG",), timeout=0.02))
+        finally:
+            link.close(timeout=0.02)
+        self.assertIsNotNone(link.proc.poll())
+        self.assertFalse(link.send("after close"))
+        link.close()
+
+    def test_process_eof(self):
+        with LineProcess([sys.executable, "-u", "-c", "print('READY')"]) as link:
+            self.assertEqual(link.wait(lambda value: value == "READY", 5), "READY")
+            self.assertIsNone(link.wait(lambda value: True, 5))
+            self.assertFalse(link.send("after EOF"))
+
+    def test_process_deadline_with_stray_output(self):
+        child = (
+            "import time\n"
+            "print('READY', flush=True)\n"
+            "for i in range(1000): print('NOTICE', flush=True)\n"
+            "time.sleep(60)\n"
+        )
+        link = LineProcess([sys.executable, "-u", "-c", child])
+        try:
+            self.assertEqual(link.wait(lambda value: value == "READY", 5), "READY")
+            start = time.monotonic()
+            self.assertIsNone(link.wait(lambda value: time.sleep(0.002) or False, 0.02))
+            self.assertLess(time.monotonic() - start, 1)
+            self.assertTrue(link.stray)
+        finally:
+            link.close(timeout=0.02)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 # Vigil Engineering
 
-Vigil 项目通用工程代码的公开子集，包含定时采样、CSV 汇总、测量完整性检查、
-时间窗口积分及自动化测试。公开源码可独立构建运行，无需原项目代码或数据。
+Vigil 项目工程代码的公开子集，包含进程通信、二进制编解码、结构化输出验证，
+以及定时采样、CSV 汇总、测量完整性检查和时间窗口积分。
+公开源码可独立构建运行，无需原项目代码或数据。
 
 | 交付 | 可直接核验的内容 |
 |---|---|
@@ -9,6 +10,9 @@ Vigil 项目通用工程代码的公开子集，包含定时采样、CSV 汇总�
 | [CSV 汇总](tools/summarize_csv.py) | 指定数值列、分类汇总、中位数和范围、异常数据检查 |
 | [测量完整性检查](tools/validate_measurements.py) | 样本总数、迭代顺序、缺失与重复记录、有效耗时 |
 | [时间窗口积分](tools/integrate_power.py) | 采样间隔、窗口覆盖、功率积分及平均功率 |
+| [进程通信](runtime_support/process_link.py) | 后台读取、请求与响应、超时、诊断记录、进程退出与回收 |
+| [二进制编解码](runtime_support/binary_codec.py) | 小端字段、UTF-8 字符串、完整性检查与边界验证 |
+| [结构化输出验证](runtime_support/json_output.py) | JSON 解析、格式回退、参数类型、必填字段与枚举 |
 | [自动化测试](tests/test_tools.py) | 合成文件采样到 CSV 统计的运行链路，以及错误处理 |
 
 ## 构建与测试
@@ -75,11 +79,44 @@ python3 -B tools/integrate_power.py examples/synthetic_power.csv \
 时间戳必须严格递增，功率必须非负且有限，窗口须被样本完整覆盖。
 `--max-gap` 可检查最大采样间隔。计算结果取决于调用方的单位、校准和采样质量。
 
+## 使用项目支撑模块
+
+这些模块从项目已有支撑代码中抽取，公开版本可以单独导入。
+
+```python
+from runtime_support import FrameReader, FrameWriter, parse_output, validate_calls
+
+writer = FrameWriter(b"EXAMPLE")
+writer.put("I", 7)
+writer.text("hello")
+reader = FrameReader(writer.done(), b"EXAMPLE")
+assert reader.get("I") == 7
+assert reader.text() == "hello"
+reader.finish()
+
+specs = {"echo": {"text": {"type": "string", "required": True}}}
+value, error, used_fallback = parse_output(
+    '[{"name": "echo", "parameters": {"text": "hello"}}]'
+)
+assert error is None
+assert validate_calls(value, specs) == []
+```
+
+`LineProcess(argv)` 通过标准输入输出与子进程逐行通信，调用方提供命令和响应前缀。
+可用 `request("PING", ("PONG",), timeout=1)` 发送并等待匹配响应；
+超时或输出结束返回 `None`。使用 `with LineProcess(...)` 会在退出时关闭输入、
+等待进程退出，必要时终止并回收直接子进程。通信方法由单一调用者顺序使用。
+调用方可以显式指定诊断文件路径，默认不创建文件。
+
+编解码器的标记和字段布局由调用者提供，字符串长度以 UTF-8 字节计算。
+输出验证器只检查提供的参数规范；调用方可依据 `used_fallback` 决定是否接受
+从说明文字中抽出的 JSON。结构通过不等同于函数已执行。
+
 ## 工程核验
 
 `engineering-work` 分支以源码、提交差异及可复现测试展示工程交付。
-四项工具覆盖数据采集、样本完整性、统计与时间窗口计算；单元和集成测试
-验证正常链路与错误输入。本分支共 23 个测试，可通过上述 `make test` 入口运行，
+支撑模块与工具覆盖进程通信、输入输出处理及测量流程；单元和集成测试
+验证正常链路与错误输入。当前共 36 个测试，可通过上述 `make test` 入口运行，
 持续集成结果见仓库 Actions 页面。
 
 本分支展示经过整理的通用代码子集。研究核心实现和研究资料保留在本地；
