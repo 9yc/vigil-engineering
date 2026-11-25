@@ -64,6 +64,7 @@
 !/tests/test_trace_spooler.py
 !/tests/test_sqlite_ledger.py
 !/tests/test_rpc_mux.py
+!/tests/test_prompt_serializer.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
@@ -81,6 +82,7 @@
 !/runtime_support/thermal_duty.py
 !/runtime_support/sqlite_ledger.py
 !/runtime_support/rpc_mux.py
+!/runtime_support/prompt_serializer.py
 !/capacity_study/
 /capacity_study/*
 !/capacity_study/__init__.py
