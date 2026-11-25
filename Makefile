@@ -18,6 +18,7 @@ CONFIG_CALIBRATOR = $(ARTIFACT_DIR)/config_calibrator_cli
 PERIODIC_SAMPLER = $(ARTIFACT_DIR)/periodic_cmd_sampler
 DVFS_RESIDENCY = $(ARTIFACT_DIR)/dvfs_residency_audit
 POWER_WINDOW = $(ARTIFACT_DIR)/power_window_align
+COOLDOWN_DETECTOR = $(ARTIFACT_DIR)/cooldown_detector
 
 BINARIES = \
 	$(SAMPLER) \
@@ -26,7 +27,8 @@ BINARIES = \
 	$(CONFIG_CALIBRATOR) \
 	$(PERIODIC_SAMPLER) \
 	$(DVFS_RESIDENCY) \
-	$(POWER_WINDOW)
+	$(POWER_WINDOW) \
+	$(COOLDOWN_DETECTOR)
 
 all: $(BINARIES)
 
@@ -55,6 +57,10 @@ $(DVFS_RESIDENCY): tools/dvfs_residency_audit.cpp include/cpufreq_residency.hpp
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
 $(POWER_WINDOW): tools/power_window_align.cpp include/power_window.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(COOLDOWN_DETECTOR): tools/cooldown_detector.cpp include/thermal_cooldown.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
