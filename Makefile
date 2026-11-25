@@ -15,12 +15,14 @@ SAMPLER = $(ARTIFACT_DIR)/sample_nodes
 PROC_WATCH = $(ARTIFACT_DIR)/proc_tree_watch
 TRANSFORMER_REF = $(ARTIFACT_DIR)/transformer_ref_cli
 ARENA_VERIFIER = $(ARTIFACT_DIR)/arena_verifier
+PROC_TELEMETRY = $(ARTIFACT_DIR)/proc_telemetry_dump
 
 BINARIES = \
 	$(SAMPLER) \
 	$(PROC_WATCH) \
 	$(TRANSFORMER_REF) \
-	$(ARENA_VERIFIER)
+	$(ARENA_VERIFIER) \
+	$(PROC_TELEMETRY)
 
 all: $(BINARIES)
 
@@ -37,6 +39,10 @@ $(TRANSFORMER_REF): tools/transformer_ref_cli.cpp include/transformer_ops.hpp
 	$(CXX) $(CXXFLAGS) -pthread -Iinclude "$<" -o "$@"
 
 $(ARENA_VERIFIER): tools/arena_verifier.cpp include/slab_arena.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(PROC_TELEMETRY): tools/proc_telemetry_dump.cpp include/sysfs_sampler.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
