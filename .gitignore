@@ -18,6 +18,7 @@
 /tests/*
 !/tests/test_tools.py
 !/tests/test_adb_session.py
+!/tests/test_power_telemetry.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
@@ -25,3 +26,4 @@
 /runtime_support/*
 !/runtime_support/__init__.py
 !/runtime_support/adb_session.py
+!/runtime_support/power_telemetry.py
