@@ -54,6 +54,7 @@
 !/tests/test_cooldown_detector.py
 !/tests/test_durable_journal.py
 !/tests/test_device_lease.py
+!/tests/test_runner_preflight.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
@@ -62,3 +63,4 @@
 !/runtime_support/__init__.py
 !/runtime_support/durable_journal.py
 !/runtime_support/device_lease.py
+!/runtime_support/runner_preflight.py
