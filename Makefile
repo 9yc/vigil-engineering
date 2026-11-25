@@ -13,10 +13,12 @@ endif
 
 SAMPLER = $(ARTIFACT_DIR)/sample_nodes
 CADENCE_SIM = $(ARTIFACT_DIR)/cadence_sim_cli
+TELEMETRY_DECODER = $(ARTIFACT_DIR)/telemetry_block_decoder
 
 BINARIES = \
 	$(SAMPLER) \
-	$(CADENCE_SIM)
+	$(CADENCE_SIM) \
+	$(TELEMETRY_DECODER)
 
 all: $(BINARIES)
 
@@ -25,6 +27,10 @@ $(SAMPLER): tools/sample_nodes.cpp
 	$(CXX) $(CXXFLAGS) "$<" -o "$@"
 
 $(CADENCE_SIM): tools/cadence_sim_cli.cpp include/cadence_controller.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(TELEMETRY_DECODER): tools/telemetry_block_decoder.cpp include/framed_telemetry.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
