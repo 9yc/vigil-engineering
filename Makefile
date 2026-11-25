@@ -17,6 +17,7 @@ TRANSFORMER_REF = $(ARTIFACT_DIR)/transformer_ref_cli
 ARENA_VERIFIER = $(ARTIFACT_DIR)/arena_verifier
 PROC_TELEMETRY = $(ARTIFACT_DIR)/proc_telemetry_dump
 CONTAINER_AUDIT = $(ARTIFACT_DIR)/container_audit
+DAG_CRITICAL_PATH = $(ARTIFACT_DIR)/dag_critical_path
 
 BINARIES = \
 	$(SAMPLER) \
@@ -24,7 +25,8 @@ BINARIES = \
 	$(TRANSFORMER_REF) \
 	$(ARENA_VERIFIER) \
 	$(PROC_TELEMETRY) \
-	$(CONTAINER_AUDIT)
+	$(CONTAINER_AUDIT) \
+	$(DAG_CRITICAL_PATH)
 
 all: $(BINARIES)
 
@@ -49,6 +51,10 @@ $(PROC_TELEMETRY): tools/proc_telemetry_dump.cpp include/sysfs_sampler.hpp
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
 $(CONTAINER_AUDIT): tools/container_audit.cpp include/tensor_container.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(DAG_CRITICAL_PATH): tools/dag_critical_path.cpp include/task_dag.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 

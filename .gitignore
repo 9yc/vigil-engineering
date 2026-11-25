@@ -11,6 +11,7 @@
 !/include/slab_arena.hpp
 !/include/sysfs_sampler.hpp
 !/include/tensor_container.hpp
+!/include/task_dag.hpp
 !/.github/
 !/.github/workflows/
 /.github/*
@@ -33,6 +34,7 @@
 !/tools/arena_verifier.cpp
 !/tools/proc_telemetry_dump.cpp
 !/tools/container_audit.cpp
+!/tools/dag_critical_path.cpp
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -50,6 +52,7 @@
 !/tests/test_arena_verifier.py
 !/tests/test_proc_telemetry.py
 !/tests/test_container_audit.py
+!/tests/test_dag_critical_path.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
