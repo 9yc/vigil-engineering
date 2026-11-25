@@ -26,6 +26,7 @@
 !/tools/workload_pacing.py
 !/tools/proc_tree_watch.cpp
 !/tools/transformer_ref_cli.cpp
+!/tools/weight_shard_packer.py
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -39,6 +40,7 @@
 !/tests/test_workload_pacing.py
 !/tests/test_proc_tree_watch.py
 !/tests/test_transformer_ref.py
+!/tests/test_weight_shard_packer.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
