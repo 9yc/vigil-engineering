@@ -14,6 +14,7 @@
 !/include/task_dag.hpp
 !/include/hdr_histogram.hpp
 !/include/quant_pack.hpp
+!/include/framed_log.hpp
 !/.github/
 !/.github/workflows/
 /.github/*
@@ -39,6 +40,7 @@
 !/tools/dag_critical_path.cpp
 !/tools/latency_aggregator.cpp
 !/tools/tensor_quant_cli.cpp
+!/tools/trace_spooler.cpp
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -59,6 +61,7 @@
 !/tests/test_dag_critical_path.py
 !/tests/test_latency_aggregator.py
 !/tests/test_tensor_quant_cli.py
+!/tests/test_trace_spooler.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv

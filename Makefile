@@ -20,6 +20,7 @@ CONTAINER_AUDIT = $(ARTIFACT_DIR)/container_audit
 DAG_CRITICAL_PATH = $(ARTIFACT_DIR)/dag_critical_path
 LATENCY_AGGREGATOR = $(ARTIFACT_DIR)/latency_aggregator
 TENSOR_QUANT_CLI = $(ARTIFACT_DIR)/tensor_quant_cli
+TRACE_SPOOLER = $(ARTIFACT_DIR)/trace_spooler
 
 BINARIES = \
 	$(SAMPLER) \
@@ -30,7 +31,8 @@ BINARIES = \
 	$(CONTAINER_AUDIT) \
 	$(DAG_CRITICAL_PATH) \
 	$(LATENCY_AGGREGATOR) \
-	$(TENSOR_QUANT_CLI)
+	$(TENSOR_QUANT_CLI) \
+	$(TRACE_SPOOLER)
 
 all: $(BINARIES)
 
@@ -67,6 +69,10 @@ $(LATENCY_AGGREGATOR): tools/latency_aggregator.cpp include/hdr_histogram.hpp
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
 $(TENSOR_QUANT_CLI): tools/tensor_quant_cli.cpp include/quant_pack.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(TRACE_SPOOLER): tools/trace_spooler.cpp include/framed_log.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
