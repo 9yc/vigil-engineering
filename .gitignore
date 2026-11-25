@@ -63,6 +63,7 @@
 !/tests/test_tensor_quant_cli.py
 !/tests/test_trace_spooler.py
 !/tests/test_sqlite_ledger.py
+!/tests/test_rpc_mux.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
@@ -79,6 +80,7 @@
 !/runtime_support/power_telemetry.py
 !/runtime_support/thermal_duty.py
 !/runtime_support/sqlite_ledger.py
+!/runtime_support/rpc_mux.py
 !/capacity_study/
 /capacity_study/*
 !/capacity_study/__init__.py
