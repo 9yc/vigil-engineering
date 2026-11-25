@@ -13,17 +13,31 @@ from .power_telemetry import (
     subtract_standby_baseline,
 )
 from .process_link import LineProcess
+from .thermal_duty import (
+    BatteryLowError,
+    DutyCycleController,
+    ProbeReading,
+    ThermalGateConfig,
+    ThermalGateError,
+    ThermalTimeoutError,
+)
 
 __all__ = [
     "AdbError",
     "AdbSession",
+    "BatteryLowError",
     "BatterySnapshot",
     "CommandResult",
+    "DutyCycleController",
     "FrameReader",
     "FrameWriter",
     "LineProcess",
+    "ProbeReading",
     "RetryPolicy",
     "TcpStreamForwarder",
+    "ThermalGateConfig",
+    "ThermalGateError",
+    "ThermalTimeoutError",
     "integrate_coulomb_energy",
     "integrate_vi_trapezoidal",
     "parse_dumpsys_battery",
