@@ -11,6 +11,7 @@
 !/include/binomial_bounds.hpp
 !/include/periodic_sampler.hpp
 !/include/cpufreq_residency.hpp
+!/include/power_window.hpp
 !/.github/
 !/.github/workflows/
 /.github/*
@@ -32,6 +33,7 @@
 !/tools/config_calibrator_cli.cpp
 !/tools/periodic_cmd_sampler.cpp
 !/tools/dvfs_residency_audit.cpp
+!/tools/power_window_align.cpp
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -46,6 +48,7 @@
 !/tests/test_config_calibrator_cli.py
 !/tests/test_periodic_cmd_sampler.py
 !/tests/test_dvfs_residency_audit.py
+!/tests/test_power_window_align.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
