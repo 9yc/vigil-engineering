@@ -13,6 +13,7 @@
 !/include/tensor_container.hpp
 !/include/task_dag.hpp
 !/include/hdr_histogram.hpp
+!/include/quant_pack.hpp
 !/.github/
 !/.github/workflows/
 /.github/*
@@ -37,6 +38,7 @@
 !/tools/container_audit.cpp
 !/tools/dag_critical_path.cpp
 !/tools/latency_aggregator.cpp
+!/tools/tensor_quant_cli.cpp
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -56,6 +58,7 @@
 !/tests/test_container_audit.py
 !/tests/test_dag_critical_path.py
 !/tests/test_latency_aggregator.py
+!/tests/test_tensor_quant_cli.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
