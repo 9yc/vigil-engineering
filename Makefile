@@ -21,7 +21,8 @@ $(SAMPLER): tools/sample_nodes.cpp
 
 test: all
 	mkdir -p "$(ARTIFACT_DIR)/test-tmp"
-	TMPDIR="$(ARTIFACT_DIR)/test-tmp" \
+	ARTIFACT_DIR="$(ARTIFACT_DIR)" \
+		TMPDIR="$(ARTIFACT_DIR)/test-tmp" \
 		SAMPLER_BINARY="$(SAMPLER)" \
 		PYTHONDONTWRITEBYTECODE=1 \
 		$(PYTHON) -B -m unittest discover -s tests -v
