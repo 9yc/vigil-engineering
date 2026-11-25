@@ -55,6 +55,7 @@
 !/tests/test_durable_journal.py
 !/tests/test_device_lease.py
 !/tests/test_runner_preflight.py
+!/tests/test_batch_driver.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
@@ -64,3 +65,4 @@
 !/runtime_support/durable_journal.py
 !/runtime_support/device_lease.py
 !/runtime_support/runner_preflight.py
+!/runtime_support/batch_driver.py
