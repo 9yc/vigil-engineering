@@ -18,6 +18,7 @@ ARENA_VERIFIER = $(ARTIFACT_DIR)/arena_verifier
 PROC_TELEMETRY = $(ARTIFACT_DIR)/proc_telemetry_dump
 CONTAINER_AUDIT = $(ARTIFACT_DIR)/container_audit
 DAG_CRITICAL_PATH = $(ARTIFACT_DIR)/dag_critical_path
+LATENCY_AGGREGATOR = $(ARTIFACT_DIR)/latency_aggregator
 
 BINARIES = \
 	$(SAMPLER) \
@@ -26,7 +27,8 @@ BINARIES = \
 	$(ARENA_VERIFIER) \
 	$(PROC_TELEMETRY) \
 	$(CONTAINER_AUDIT) \
-	$(DAG_CRITICAL_PATH)
+	$(DAG_CRITICAL_PATH) \
+	$(LATENCY_AGGREGATOR)
 
 all: $(BINARIES)
 
@@ -55,6 +57,10 @@ $(CONTAINER_AUDIT): tools/container_audit.cpp include/tensor_container.hpp
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
 $(DAG_CRITICAL_PATH): tools/dag_critical_path.cpp include/task_dag.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(LATENCY_AGGREGATOR): tools/latency_aggregator.cpp include/hdr_histogram.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
