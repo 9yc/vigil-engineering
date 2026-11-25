@@ -10,6 +10,7 @@
 !/include/transformer_ops.hpp
 !/include/slab_arena.hpp
 !/include/sysfs_sampler.hpp
+!/include/tensor_container.hpp
 !/.github/
 !/.github/workflows/
 /.github/*
@@ -31,6 +32,7 @@
 !/tools/weight_shard_packer.py
 !/tools/arena_verifier.cpp
 !/tools/proc_telemetry_dump.cpp
+!/tools/container_audit.cpp
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -47,6 +49,7 @@
 !/tests/test_weight_shard_packer.py
 !/tests/test_arena_verifier.py
 !/tests/test_proc_telemetry.py
+!/tests/test_container_audit.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
