@@ -12,16 +12,26 @@ $(error ARTIFACT_DIR must be an absolute path)
 endif
 
 SAMPLER = $(ARTIFACT_DIR)/sample_nodes
+PROC_WATCH = $(ARTIFACT_DIR)/proc_tree_watch
 
-all: $(SAMPLER)
+BINARIES = \
+	$(SAMPLER) \
+	$(PROC_WATCH)
+
+all: $(BINARIES)
 
 $(SAMPLER): tools/sample_nodes.cpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) "$<" -o "$@"
 
+$(PROC_WATCH): tools/proc_tree_watch.cpp include/proc_watchdog.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
 test: all
 	mkdir -p "$(ARTIFACT_DIR)/test-tmp"
-	TMPDIR="$(ARTIFACT_DIR)/test-tmp" \
+	ARTIFACT_DIR="$(ARTIFACT_DIR)" \
+		TMPDIR="$(ARTIFACT_DIR)/test-tmp" \
 		SAMPLER_BINARY="$(SAMPLER)" \
 		PYTHONDONTWRITEBYTECODE=1 \
 		$(PYTHON) -B -m unittest discover -s tests -v
