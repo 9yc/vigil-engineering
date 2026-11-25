@@ -62,6 +62,7 @@
 !/tests/test_latency_aggregator.py
 !/tests/test_tensor_quant_cli.py
 !/tests/test_trace_spooler.py
+!/tests/test_sqlite_ledger.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
@@ -77,6 +78,7 @@
 !/runtime_support/adb_session.py
 !/runtime_support/power_telemetry.py
 !/runtime_support/thermal_duty.py
+!/runtime_support/sqlite_ledger.py
 !/capacity_study/
 /capacity_study/*
 !/capacity_study/__init__.py
