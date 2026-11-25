@@ -19,6 +19,7 @@
 !/tools/tensor_quant.py
 !/tools/structured_call_eval.py
 !/tools/sse_stream_client.py
+!/tools/workload_pacing.py
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -29,6 +30,7 @@
 !/tests/test_tensor_quant.py
 !/tests/test_structured_call_eval.py
 !/tests/test_sse_stream_client.py
+!/tests/test_workload_pacing.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
