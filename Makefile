@@ -15,12 +15,14 @@ SAMPLER = $(ARTIFACT_DIR)/sample_nodes
 CADENCE_SIM = $(ARTIFACT_DIR)/cadence_sim_cli
 TELEMETRY_DECODER = $(ARTIFACT_DIR)/telemetry_block_decoder
 CONFIG_CALIBRATOR = $(ARTIFACT_DIR)/config_calibrator_cli
+PERIODIC_SAMPLER = $(ARTIFACT_DIR)/periodic_cmd_sampler
 
 BINARIES = \
 	$(SAMPLER) \
 	$(CADENCE_SIM) \
 	$(TELEMETRY_DECODER) \
-	$(CONFIG_CALIBRATOR)
+	$(CONFIG_CALIBRATOR) \
+	$(PERIODIC_SAMPLER)
 
 all: $(BINARIES)
 
@@ -37,6 +39,10 @@ $(TELEMETRY_DECODER): tools/telemetry_block_decoder.cpp include/framed_telemetry
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
 $(CONFIG_CALIBRATOR): tools/config_calibrator_cli.cpp include/binomial_bounds.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(PERIODIC_SAMPLER): tools/periodic_cmd_sampler.cpp include/periodic_sampler.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 

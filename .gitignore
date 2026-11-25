@@ -9,6 +9,7 @@
 !/include/cadence_controller.hpp
 !/include/framed_telemetry.hpp
 !/include/binomial_bounds.hpp
+!/include/periodic_sampler.hpp
 !/.github/
 !/.github/workflows/
 /.github/*
@@ -28,6 +29,7 @@
 !/tools/cadence_sim_cli.cpp
 !/tools/telemetry_block_decoder.cpp
 !/tools/config_calibrator_cli.cpp
+!/tools/periodic_cmd_sampler.cpp
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -40,6 +42,7 @@
 !/tests/test_cadence_sim_cli.py
 !/tests/test_telemetry_block_decoder.py
 !/tests/test_config_calibrator_cli.py
+!/tests/test_periodic_cmd_sampler.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv
