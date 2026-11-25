@@ -16,13 +16,15 @@ CADENCE_SIM = $(ARTIFACT_DIR)/cadence_sim_cli
 TELEMETRY_DECODER = $(ARTIFACT_DIR)/telemetry_block_decoder
 CONFIG_CALIBRATOR = $(ARTIFACT_DIR)/config_calibrator_cli
 PERIODIC_SAMPLER = $(ARTIFACT_DIR)/periodic_cmd_sampler
+DVFS_RESIDENCY = $(ARTIFACT_DIR)/dvfs_residency_audit
 
 BINARIES = \
 	$(SAMPLER) \
 	$(CADENCE_SIM) \
 	$(TELEMETRY_DECODER) \
 	$(CONFIG_CALIBRATOR) \
-	$(PERIODIC_SAMPLER)
+	$(PERIODIC_SAMPLER) \
+	$(DVFS_RESIDENCY)
 
 all: $(BINARIES)
 
@@ -43,6 +45,10 @@ $(CONFIG_CALIBRATOR): tools/config_calibrator_cli.cpp include/binomial_bounds.hp
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
 $(PERIODIC_SAMPLER): tools/periodic_cmd_sampler.cpp include/periodic_sampler.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(DVFS_RESIDENCY): tools/dvfs_residency_audit.cpp include/cpufreq_residency.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
