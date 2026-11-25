@@ -4,6 +4,9 @@
 !/README.md
 !/NOTICE.md
 !/Makefile
+!/include/
+/include/*
+!/include/cadence_controller.hpp
 !/.github/
 !/.github/workflows/
 /.github/*
@@ -20,6 +23,7 @@
 !/tools/paired_bootstrap.py
 !/tools/operating_point_selector.py
 !/tools/amendment_ledger.py
+!/tools/cadence_sim_cli.cpp
 !/tests/
 /tests/*
 !/tests/test_tools.py
@@ -29,6 +33,7 @@
 !/tests/test_paired_bootstrap.py
 !/tests/test_operating_point_selector.py
 !/tests/test_amendment_ledger.py
+!/tests/test_cadence_sim_cli.py
 !/examples/
 /examples/*
 !/examples/synthetic_measurements.csv

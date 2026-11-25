@@ -12,12 +12,21 @@ $(error ARTIFACT_DIR must be an absolute path)
 endif
 
 SAMPLER = $(ARTIFACT_DIR)/sample_nodes
+CADENCE_SIM = $(ARTIFACT_DIR)/cadence_sim_cli
 
-all: $(SAMPLER)
+BINARIES = \
+	$(SAMPLER) \
+	$(CADENCE_SIM)
+
+all: $(BINARIES)
 
 $(SAMPLER): tools/sample_nodes.cpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) "$<" -o "$@"
+
+$(CADENCE_SIM): tools/cadence_sim_cli.cpp include/cadence_controller.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
 
 test: all
 	mkdir -p "$(ARTIFACT_DIR)/test-tmp"
