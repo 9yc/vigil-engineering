@@ -13,10 +13,12 @@ endif
 
 SAMPLER = $(ARTIFACT_DIR)/sample_nodes
 PROC_WATCH = $(ARTIFACT_DIR)/proc_tree_watch
+TRANSFORMER_REF = $(ARTIFACT_DIR)/transformer_ref_cli
 
 BINARIES = \
 	$(SAMPLER) \
-	$(PROC_WATCH)
+	$(PROC_WATCH) \
+	$(TRANSFORMER_REF)
 
 all: $(BINARIES)
 
@@ -27,6 +29,10 @@ $(SAMPLER): tools/sample_nodes.cpp
 $(PROC_WATCH): tools/proc_tree_watch.cpp include/proc_watchdog.hpp
 	mkdir -p "$(ARTIFACT_DIR)"
 	$(CXX) $(CXXFLAGS) -Iinclude "$<" -o "$@"
+
+$(TRANSFORMER_REF): tools/transformer_ref_cli.cpp include/transformer_ops.hpp
+	mkdir -p "$(ARTIFACT_DIR)"
+	$(CXX) $(CXXFLAGS) -pthread -Iinclude "$<" -o "$@"
 
 test: all
 	mkdir -p "$(ARTIFACT_DIR)/test-tmp"
